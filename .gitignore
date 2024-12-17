@@ -1,0 +1,47 @@
+# Compiled class files
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+*.tmp
+
+# Eclipse and IntelliJ IDEA project files
+/.classpath
+/.project
+/.settings/
+/.idea/
+/*.iml
+/out/
+
+# Maven specific files
+/target/
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/logs/
+/mvnw
+/mvnw.cmd
+/.mvn/
+
+# Gradle specific files
+.gradle/
+/build/
+/.gradle/
+/gradle-app.setting
+!/gradle/wrapper/gradle-wrapper.jar
+/gradle-wrapper.properties
+
+# NetBeans specific files
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/*.lock
+
+# VS Code
