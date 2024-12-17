@@ -44,18 +44,7 @@ public class ListaService {
 		return lista;
 	}
 
-	public Lista addProducto(String idLista, Producto producto) {
-		Optional<Lista> optlista = this.listaDao.findById(idLista);
-		if (optlista.isEmpty())
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentra la lista");
-		Lista lista = optlista.get();
-		lista.add(producto);
-		
-		producto.setLista(lista);
-		this.productoDao.save(producto);
-		this.wsListas.notificar(idLista, producto);
-		return lista;
-	}
+
 
 	public List<Lista> getListas(String email) {
 		List<Lista> result = new ArrayList<>();

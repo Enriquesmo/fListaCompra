@@ -38,17 +38,6 @@ public class ListaController {
 		
 		return this.listaService.crearLista(nombre, "1234");
 	}
-	@PostMapping("/addProducto")
-	public Lista addProducto(HttpServletRequest request,@RequestBody Producto producto) {
-		if (producto.getNombre().isEmpty())
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre no puede estar vacio");
-		
-		if (producto.getNombre().length()>80)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre de la lista esta limitado a 80 caracteres");
-		
-		String idLista = request.getHeader("idLista");
-		return this.listaService.addProducto(idLista,producto);
-	}
 	
 	@PutMapping("/comprar")
 	public Producto comprar(@RequestBody Map<String, Object>compra) {
