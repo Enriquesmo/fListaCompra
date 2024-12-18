@@ -1,6 +1,7 @@
 package edu.uclm.esi.listasbe.http;
 
 import java.util.List;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ import edu.uclm.esi.listasbe.model.Lista;
 import edu.uclm.esi.listasbe.model.Producto;
 import edu.uclm.esi.listasbe.services.ListaService;
 import jakarta.servlet.http.HttpServletRequest;
+
+//En los controller, lo que se hace es comprobar que no hay ningun erroor de faltar datos o algo parecido para que una vez visto
+//eso, se llame a la verdadera funcion, que se encuentra en services
+//Recibe las peticiones del usuario, que tienen parametros y los obtienen para pasarelos a los services
 
 @RestController
 @RequestMapping("listas")

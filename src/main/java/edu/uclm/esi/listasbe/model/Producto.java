@@ -9,7 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
-@Entity
+@Entity //Indica a la BBDD que tiene que crear un modelo de este objeto 
 public class Producto {
 	@Id @Column(length = 36)
 	private String id;

@@ -15,6 +15,8 @@ import edu.uclm.esi.listasbe.model.Lista;
 import edu.uclm.esi.listasbe.model.Producto;
 import edu.uclm.esi.listasbe.ws.WSListas;
 
+//los services se usan para obtener o modificar o eliminar informacion de la BBDD
+//Interacciona con la BBDD a traves de las clases DAO
 
 @Service
 public class ListaService {
