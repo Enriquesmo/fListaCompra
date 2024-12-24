@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 
 public interface ListaDao extends CrudRepository<Lista, String>{
 	
+	//Sirve para realizar peticiones personalizadas o no a la BBDD
+	
 	@Query(value="select lista_id from lista_emails_usuarios where emails_usuarios=:email", nativeQuery=true)
 	List<String> getListasDe(String email);
 
