@@ -36,7 +36,8 @@ public class ListaController {
 		if (nombre.length()>80)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre de la lista esta limitado a 80 caracteres");
 		
-		return this.listaService.crearLista(nombre, "1234");
+		//return this.listaService.crearLista(nombre, "1234");
+		return this.listaService.crearLista(nombre);
 	}
 	
 	@PutMapping("/comprar")
