@@ -30,7 +30,7 @@ public class ListaService {
 	@Autowired
 	private WSListas wsListas;
 	
-	public Lista crearLista(String nombre) {
+	public Lista crearLista(String nombre, String email) {
 	//public Lista crearLista(String nombre,String token) {
 		//String email = this.proxy.validar(token); //tiene que devolver un email
 		//if (email == null) {
@@ -41,6 +41,11 @@ public class ListaService {
 		
 		Lista lista = new Lista();
 		lista.setNombre(nombre);
+		lista.setCreador(email);
+		//List<String> emailU = lista.getEmailsUsuarios();
+		//emailU.add(email);
+		//lista.setEmailsUsuarios(emailU);
+		//System.out.print(email);
 		//lista.addEmailUsuario(email);
 		this.listaDao.save(lista);
 		//lista.confirmar(lista.getId(),email);

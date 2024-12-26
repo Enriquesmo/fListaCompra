@@ -17,6 +17,8 @@ public class Lista {
 	private String id;
 	@Column(length = 80)
 	private String nombre;
+	@Column (length = 80)
+	private String creador;
 	
 	@OneToMany (mappedBy = "lista")
 	private List<Producto> productos;
@@ -31,6 +33,17 @@ public class Lista {
 		this.productos = new ArrayList<>();
 		this.emailsUsuarios = new ArrayList<>();
 	}
+	
+
+	public String getCreador() {
+		return creador;
+	}
+
+
+	public void setCreador(String creador) {
+		this.creador = creador;
+	}
+
 
 	public String getId() {
 		return id;

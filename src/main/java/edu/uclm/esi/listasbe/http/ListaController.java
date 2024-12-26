@@ -33,17 +33,20 @@ public class ListaController {
 	private ListaService listaService;
 	
 	@PostMapping("/crearLista")
-	public Lista crearLista(@RequestBody String nombre) {
-		nombre = nombre.trim();
-		if (nombre.isEmpty())
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre no puede estar vacio");
-		
-		if (nombre.length()>80)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre de la lista esta limitado a 80 caracteres");
-		
-		//return this.listaService.crearLista(nombre, "1234");
-		return this.listaService.crearLista(nombre);
+	public Lista crearLista(@RequestParam String nombre, @RequestParam String email) {
+	    nombre = nombre.trim();
+	    email = email.trim();
+
+	    if (nombre.isEmpty())
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre no puede estar vacío");
+	    
+	    if (nombre.length() > 80)
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de la lista está limitado a 80 caracteres");
+
+	    return this.listaService.crearLista(nombre, email);
 	}
+
+
 	
 	@PutMapping("/comprar")
 	public Producto comprar(@RequestBody Map<String, Object>compra) {
