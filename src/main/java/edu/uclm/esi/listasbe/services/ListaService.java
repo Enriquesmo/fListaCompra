@@ -3,9 +3,11 @@ package edu.uclm.esi.listasbe.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,28 +33,14 @@ public class ListaService {
 	private WSListas wsListas;
 	
 	public Lista crearLista(String nombre, String email) {
-	//public Lista crearLista(String nombre,String token) {
-		//String email = this.proxy.validar(token); //tiene que devolver un email
-		//if (email == null) {
-			//throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED);
-		//}
-		
-		
-		
 		Lista lista = new Lista();
 		lista.setNombre(nombre);
 		lista.setCreador(email);
-		//List<String> emailU = lista.getEmailsUsuarios();
-		//emailU.add(email);
-		//lista.setEmailsUsuarios(emailU);
-		//System.out.print(email);
-		//lista.addEmailUsuario(email);
+	    String token = UUID.randomUUID().toString();
+	    lista.setInvitation_token(token);
 		this.listaDao.save(lista);
-		//lista.confirmar(lista.getId(),email);
 		return lista;
 	}
-
-
 
 	public List<Lista> getListas(String email) {
 		List<Lista> result = new ArrayList<>();
@@ -63,7 +51,7 @@ public class ListaService {
 		return result;
 	}
 
-	public String addInvitado(String idLista, String email) {
+	/*public String addInvitado(String idLista, String email) {
 		Optional<Lista> optlista = this.listaDao.findById(idLista);
 		if (optlista.isEmpty())
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentra la lista");
@@ -72,12 +60,32 @@ public class ListaService {
 		this.listaDao.save(lista);
 		String url = "https://localhost:8443/listas/aceptarInvitacion?email=" + email + "&lista=" + idLista;
 		return url;
+	}*/
+	
+	public ResponseEntity<Object> aceptarInvitacion(String listaId, String token, String emailUsuario) {
+	    Lista lista = listaDao.findById(listaId)
+	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lista no encontrada"));
+	    
+	    if (!lista.getInvitation_token().equals(token)) {
+	        throw new ResponseStatusException(HttpStatus.CONFLICT, "El token de la lista no es coincidente");
+	    }
+	    // Verifica si el usuario ya está en la lista
+	    if (lista.getEmailsUsuarios().contains(emailUsuario)) {
+	        throw new ResponseStatusException(HttpStatus.CONFLICT, "El usuario ya es miembro de esta lista");
+	    }
+
+	    lista.addEmailUsuario(emailUsuario);
+	    listaDao.save(lista);
+
+	    return ResponseEntity.ok().build();
 	}
 	
-	public void aceptarInvitacion(String idLista, String email) {
-		this.listaDao.confirmar(idLista,email);
+	public ResponseEntity<String> generar_invitacion(String listaId) {
+	    Lista lista = listaDao.findById(listaId)
+	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lista no encontrada"));
+	    String invitationLink = "https://localhost:4200/invitacion/" + "?token=" + lista.getInvitation_token();
+	    return ResponseEntity.ok(invitationLink);
 	}
-	
 }
 
 

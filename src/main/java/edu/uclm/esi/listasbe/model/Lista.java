@@ -19,14 +19,12 @@ public class Lista {
 	private String nombre;
 	@Column (length = 80)
 	private String creador;
-	
+	@Column
+	private String invitation_token;
 	@OneToMany (mappedBy = "lista")
 	private List<Producto> productos;
-	
-	
 	@ElementCollection
 	private List<String> emailsUsuarios;
-	
 	
 	public Lista() {
 		this.id = UUID.randomUUID().toString();
@@ -34,16 +32,13 @@ public class Lista {
 		this.emailsUsuarios = new ArrayList<>();
 	}
 	
-
 	public String getCreador() {
 		return creador;
 	}
 
-
 	public void setCreador(String creador) {
 		this.creador = creador;
 	}
-
 
 	public String getId() {
 		return id;
@@ -68,6 +63,7 @@ public class Lista {
 	public List<Producto> getProductos() {
 		return productos;
 	}
+	
 	public void setProductos(List<Producto> productos) {
 		this.productos = productos;
 	}
@@ -80,10 +76,16 @@ public class Lista {
 		this.emailsUsuarios = emailsUsuarios;
 	}
 
-
 	public void addEmailUsuario(String email) {
 		this.emailsUsuarios.add(email);
-		
+	}
+	
+	public String getInvitation_token() {
+		return invitation_token;
+	}
+	
+	public void setInvitation_token(String invitation_token) {
+		this.invitation_token = invitation_token;
 	}
 	
 	

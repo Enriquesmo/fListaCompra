@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,17 +37,12 @@ public class ListaController {
 	public Lista crearLista(@RequestParam String nombre, @RequestParam String email) {
 	    nombre = nombre.trim();
 	    email = email.trim();
-
 	    if (nombre.isEmpty())
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre no puede estar vacío");
-	    
 	    if (nombre.length() > 80)
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de la lista está limitado a 80 caracteres");
-
 	    return this.listaService.crearLista(nombre, email);
 	}
-
-
 	
 	@PutMapping("/comprar")
 	public Producto comprar(@RequestBody Map<String, Object>compra) {
@@ -60,12 +56,12 @@ public class ListaController {
 		return this.listaService.getListas(email);
 	}
 	
-	@PostMapping("/addInvitado")
+	/*@PostMapping("/addInvitado")
 	public String addInvitado(HttpServletRequest request,@RequestBody String email) {
 		
 		String idLista = request.getHeader("idLista");
 		return this.listaService.addInvitado(idLista,email);
-	}
+	}*/
 	
 	@PostMapping("/aceptarInvitacion")
 	public void aceptarInvitacion(HttpServletRequest response,@RequestBody String email) {
@@ -73,6 +69,21 @@ public class ListaController {
 	//response.sendRedirect("https://localhost:4200");
 	}
 	
+	@PostMapping("/generate-invitation")
+	public ResponseEntity<String> generateInvitation(@RequestBody Map<String, Object>body) {
+		String listaId = body.get("listaId").toString();
+		System.out.println(listaId);
+		return this.listaService.generar_invitacion(listaId);
+	}
+
+	@PostMapping("/accept-invitacion")
+	public ResponseEntity<Object> acceptInvitation(@RequestBody Map<String, Object>body) {
+		String listaId = body.get("listaId").toString();
+		String token = body.get("token").toString();
+		String emailUsuario = body.get("emailUsuario").toString();
+		return this.listaService.aceptarInvitacion(listaId, token, emailUsuario);
+	}
+
 	
 }
 
