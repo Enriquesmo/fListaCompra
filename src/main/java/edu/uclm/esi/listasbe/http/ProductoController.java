@@ -1,5 +1,7 @@
 package edu.uclm.esi.listasbe.http;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,8 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
 
 import edu.uclm.esi.listasbe.model.Lista;
 import edu.uclm.esi.listasbe.model.Producto;
@@ -28,9 +32,10 @@ public class ProductoController {
 	
 
 	@PutMapping("/producto")
-	public Lista modificarProducto(HttpServletRequest request,@RequestBody Producto producto, String idLista) {
+	public void modificarProducto(HttpServletRequest request,@RequestBody Producto producto) {
 	
-		return this.productoService.addProducto(idLista,producto);
+		this.productoService.modifyProducto(producto);
+		
 	}
 	
 	@GetMapping("/producto")
@@ -39,10 +44,12 @@ public class ProductoController {
 		throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"get producto");
 	}
 	
+
+	
 	@DeleteMapping("/producto")
-	public Lista deleteProducto(HttpServletRequest request,@RequestBody Producto producto, String idLista) {
+	public void delete(HttpServletRequest request, @RequestParam String idLista,@RequestParam String idProducto) {
 		
-		return this.productoService.deleteProducto(idLista,producto);
+		this.productoService.deleteProducto(idProducto,idLista);
 	}
 	
 	@PostMapping("/producto")

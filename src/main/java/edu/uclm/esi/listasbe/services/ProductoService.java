@@ -1,5 +1,6 @@
 package edu.uclm.esi.listasbe.services;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,45 +28,62 @@ public class ProductoService {
 		if (optlista.isEmpty())
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentra la lista");
 		Lista lista = optlista.get();
-		lista.add(producto);
 		
-		producto.setLista(lista);
-		this.productoDao.save(producto);
-		this.wsListas.notificar(idLista, producto);
+		Producto productoGuardar = new Producto();
+		productoGuardar.setNombre(producto.getNombre());
+		productoGuardar.setUnidadesCompradas(producto.getUnidadesCompradas());
+		productoGuardar.setUnidadesPedidas(producto.getUnidadesPedidas());
+		productoGuardar.setLista(lista);
+		lista.add(productoGuardar);
+		this.productoDao.save(productoGuardar);
+		this.wsListas.notificar(idLista, productoGuardar);
 		return lista;
 	}
 
-	public Lista deleteProducto(String idLista, Producto producto) {
-		Optional<Lista> optlista = this.listaDao.findById(idLista);
-		if (optlista.isEmpty())
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentra la lista");
-		Lista lista = optlista.get();
-		lista.getProductos().stream().forEach((p)-> {
-			if (p.getId().equalsIgnoreCase(producto.getId())) {
-				lista.getProductos().remove(p);
-			}
-		});
-		
-		producto.setLista(lista);
-		this.productoDao.delete(producto);
-		this.wsListas.notificar(idLista, producto);
-		return lista;
-		
-		/* ESTO ES LO MISMO QUE LO DE ARRIBA PERO LO DE ARRIBA ES MAS FISNO
-		 * 
-		for (Producto p : lista.getProductos()) {
-			if (p.getId().equalsIgnoreCase(producto.getId())) {
-				lista.getProductos().remove(p);
-			}
-			
-		}*/
-		
-		
-		
+	public void deleteProducto(String idProducto, String idLista) {
+	    // Buscar el producto por su ID
+	    Optional<Producto> optProducto = this.productoDao.findById(idProducto);
+	    if (optProducto.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra el producto");
+	    }
 
+	    // Buscar la lista por su ID
+	    //Optional<Lista> optLista = this.listaDao.findById(idLista);
+	    //if (optLista.isEmpty()) {
+	        //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
+	    //}
+
+	    //Lista lista = optLista.get();
+	    Producto producto = optProducto.get();
+
+	    // Usar un iterador explícito para evitar ConcurrentModificationException
+	    //Iterator<Producto> iterator = lista.getProductos().iterator();
+	    //while (iterator.hasNext()) {
+	        //Producto p = iterator.next();
+	        //if (p.getId().equalsIgnoreCase(producto.getId())) {
+	            //iterator.remove(); // Eliminación segura
+	        //}
+	    //}
+
+	    // Actualizar el estado del producto y eliminarlo de la base de datos
+	    //producto.setLista(lista);
+	    this.productoDao.delete(producto);
+
+	    // Notificar cambios
+	    this.wsListas.notificar(idLista, producto);
+
+	    //return lista;
 	}
 
-	public Lista modifyProducto(Producto producto) {
-		return null;
+
+	public void modifyProducto(Producto producto) {
+		String idProducto=producto.getId();
+	    Optional<Producto> optProducto = this.productoDao.findById(idProducto);
+	    if (optProducto.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra el producto");
+	    }
+	    Producto productoAGuardar = optProducto.get();
+	    productoAGuardar.setUnidadesPedidas(producto.getUnidadesPedidas());
+	    this.productoDao.save(productoAGuardar);
 	}
 }

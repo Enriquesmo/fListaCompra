@@ -36,6 +36,7 @@ public class ListaService {
 		Lista lista = new Lista();
 		lista.setNombre(nombre);
 		lista.setCreador(email);
+		lista.addEmailUsuario(email);
 	    String token = UUID.randomUUID().toString();
 	    lista.setInvitation_token(token);
 		this.listaDao.save(lista);
@@ -85,6 +86,14 @@ public class ListaService {
 	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lista no encontrada"));
 	    String invitationLink = "https://localhost:4200/invitacion/" + "?token=" + lista.getInvitation_token();
 	    return ResponseEntity.ok(invitationLink);
+	}
+	public void cambiarNombre(String idLista, String nuevoNombre) {
+		Optional<Lista> optlista = this.listaDao.findById(idLista);
+		if (optlista.isEmpty())
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentra la lista");
+		Lista lista = optlista.get();
+		lista.setNombre(nuevoNombre);
+		this.listaDao.save(lista);
 	}
 }
 

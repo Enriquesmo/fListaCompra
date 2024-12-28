@@ -84,7 +84,10 @@ public class ListaController {
 		return this.listaService.aceptarInvitacion(listaId, token, emailUsuario);
 	}
 
-	
+	@PutMapping("/cambiarNombre")
+	public void cambiarNombre(HttpServletRequest request, String idLista, String nuevoNombre) {
+		this.listaService.cambiarNombre(idLista,nuevoNombre);
+	}
 }
 
 
