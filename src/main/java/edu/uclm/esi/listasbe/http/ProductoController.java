@@ -32,7 +32,7 @@ public class ProductoController {
 	
 
 	@PutMapping("/producto")
-	public void modificarProducto(HttpServletRequest request,@RequestBody Producto producto) {
+	public void modificarProducto(@RequestBody Producto producto) {
 	
 		this.productoService.modifyProducto(producto);
 		
@@ -47,7 +47,7 @@ public class ProductoController {
 
 	
 	@DeleteMapping("/producto")
-	public void delete(HttpServletRequest request, @RequestParam String idLista,@RequestParam String idProducto) {
+	public void delete( @RequestParam String idLista,@RequestParam String idProducto) {
 		
 		this.productoService.deleteProducto(idProducto,idLista);
 	}
