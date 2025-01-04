@@ -35,13 +35,22 @@ public class ListaController {
 	
 	@PostMapping("/crearLista")
 	public Lista crearLista(@RequestParam String nombre, @RequestParam String email) {
-	    nombre = nombre.trim();
-	    email = email.trim();
-	    if (nombre.isEmpty())
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre no puede estar vacío");
-	    if (nombre.length() > 80)
-	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de la lista está limitado a 80 caracteres");
-	    return this.listaService.crearLista(nombre, email);
+		//boolean vip=this.listaService.vip(email);
+		//if(vip) {
+				int cant=this.listaService.cantidadCreadas(email);
+				boolean vip=this.listaService.vip(email);
+				if(vip||cant<2) {
+				  	nombre = nombre.trim();
+				    email = email.trim();
+				    if (nombre.isEmpty())
+				        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre no puede estar vacío");
+				    if (nombre.length() > 80)
+				        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre de la lista está limitado a 80 caracteres");
+				    return this.listaService.crearLista(nombre, email);
+				}
+				return null;
+		//}
+	  //return null;
 	}
 	
 	@PutMapping("/comprar")
@@ -77,16 +86,15 @@ public class ListaController {
 	}
 
 	@PostMapping("/accept-invitacion")
-	public ResponseEntity<Object> acceptInvitation(@RequestBody Map<String, Object>body) {
-		String listaId = body.get("listaId").toString();
-		String token = body.get("token").toString();
-		String emailUsuario = body.get("emailUsuario").toString();
-		return this.listaService.aceptarInvitacion(listaId, token, emailUsuario);
+	public Lista acceptInvitation(@RequestParam String idLista, @RequestParam String email) {
+	    // Aquí puedes llamar al servicio con los parámetros recibidos
+	    return this.listaService.aceptarInvitacion(idLista, email);
 	}
 
 	@PutMapping("/cambiarNombre")
-	public void cambiarNombre(HttpServletRequest request, String idLista, String nuevoNombre) {
-		this.listaService.cambiarNombre(idLista,nuevoNombre);
+	public Lista cambiarNombre(HttpServletRequest request, String idLista, String nuevoNombre) {
+	    // Llamar al servicio para cambiar el nombre y devolver la lista actualizada
+	    return this.listaService.cambiarNombre(idLista, nuevoNombre);
 	}
 }
 

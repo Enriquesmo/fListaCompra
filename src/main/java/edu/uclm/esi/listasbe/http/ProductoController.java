@@ -1,5 +1,6 @@
 package edu.uclm.esi.listasbe.http;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,24 +33,22 @@ public class ProductoController {
 	
 
 	@PutMapping("/producto")
-	public void modificarProducto(@RequestBody Producto producto) {
-	
-		this.productoService.modifyProducto(producto);
-		
+	public Producto modificarProducto(@RequestBody Producto producto) {
+	    return this.productoService.modifyProducto(producto);
 	}
+
 	
 	@GetMapping("/producto")
-	public Lista getProducto() {
-
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"get producto");
-	}
-	
+    public List<Producto> getProducto(@RequestParam String idLista) {
+        // Llamar al servicio para obtener los productos de la lista por su id
+        return productoService.getProductosDeLista(idLista);
+    }
 
 	
 	@DeleteMapping("/producto")
-	public void delete( @RequestParam String idLista,@RequestParam String idProducto) {
+	public Lista delete( @RequestParam String idLista,@RequestParam String idProducto) {
 		
-		this.productoService.deleteProducto(idProducto,idLista);
+		return this.productoService.deleteProducto(idProducto,idLista);
 	}
 	
 	@PostMapping("/producto")
@@ -61,7 +60,8 @@ public class ProductoController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre de la lista esta limitado a 80 caracteres");
 		
 		String idLista = request.getHeader("idLista");
-		return this.productoService.addProducto(idLista,producto);
+		String email = request.getHeader("email");
+		return this.productoService.addProducto(idLista,producto,email);
 	}
 	
 	

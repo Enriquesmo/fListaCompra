@@ -20,5 +20,17 @@ public interface ListaDao extends CrudRepository<Lista, String>{
     @Transactional
     @Query(value = "UPDATE lista_emails_usuarios SET confirmado = TRUE WHERE lista_id = :idLista AND emails_usuarios = :email", nativeQuery = true)
     void confirmar(String idLista, String email);
-
+    //vip
+    @Query(value = """
+            SELECT u.vip
+            FROM usuario u
+            WHERE u.email = :emailUsuario
+        """, nativeQuery = true)
+    Boolean esUsuarioVip(String emailUsuario);
+ // Devuelve el número de listas asociadas a un usuario
+    @Query(value = "SELECT COUNT(*) " +
+                   "FROM lista_emails_usuarios leu " +
+                   "WHERE leu.emails_usuarios = :emailUsuario",
+           nativeQuery = true)
+    int contarListasDeUsuario(String emailUsuario);
 }
