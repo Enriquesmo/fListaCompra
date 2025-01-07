@@ -24,6 +24,9 @@ import edu.uclm.esi.listasbe.services.ListaService;
 import edu.uclm.esi.listasbe.services.ProxyBEU;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
+
+
 //En los controller, lo que se hace es comprobar que no hay ningun erroor de faltar datos o algo parecido para que una vez visto
 //eso, se llame a la verdadera funcion, que se encuentra en services
 //Recibe las peticiones del usuario, que tienen parametros y los obtienen para pasarelos a los services
@@ -140,6 +143,16 @@ public class ListaController {
 			 return null;
 		 }
 		 return null;
+	}
+	
+	@DeleteMapping("/eliminarLista")
+	public ResponseEntity<String> eliminarLista(@RequestParam String idLista, @RequestParam String email) {
+	    try {
+	        this.listaService.eliminarLista(idLista, email);
+	        return ResponseEntity.ok("Lista eliminada correctamente");
+	    } catch (ResponseStatusException e) {
+	        return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+	    }
 	}
 }
 
