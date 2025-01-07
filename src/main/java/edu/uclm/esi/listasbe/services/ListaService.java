@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -86,16 +87,16 @@ public class ListaService {
 
 	    lista.addEmailUsuario(emailUsuario);
 	    listaDao.save(lista);
-
+	    wsListas.enviarMensajeAUsuariosDeLista(listaId, "Nuevo Miembro: " + emailUsuario,lista);
 	    return lista;
 	}
 	
-	public ResponseEntity<String> generar_invitacion(String listaId) {
-	    Lista lista = listaDao.findById(listaId)
-	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lista no encontrada"));
-	    String invitationLink = "https://localhost:4200/invitacion/" + "?token=" + lista.getInvitation_token();
-	    return ResponseEntity.ok(invitationLink);
-	}
+	//public ResponseEntity<String> generar_invitacion(String listaId) {
+	  //  Lista lista = listaDao.findById(listaId)
+	    //        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lista no encontrada"));
+	   // String invitationLink = "https://localhost:4200/invitacion/" + "?token=" + lista.getInvitation_token();
+	   // return ResponseEntity.ok(invitationLink);
+	//}
 	public Lista cambiarNombre(String idLista, String nuevoNombre) {
 	    // Buscar la lista por su ID
 	    Optional<Lista> optLista = this.listaDao.findById(idLista);
@@ -114,77 +115,69 @@ public class ListaService {
 	    return lista;
 	}
 	public boolean vip(String email) {
-		boolean vip=false;
-		vip=this.listaDao.esUsuarioVip(email);
-		return vip;
+	    boolean vip = this.listaDao.esUsuarioVip(email);  // Verificamos si el usuario es VIP
+	    boolean fecha = this.listaDao.VipDate(email).isAfter(LocalDateTime.now());  // Verificamos si la fecha es posterior a la actual
+	    boolean valido=false;
+	    if(vip&&fecha){
+	    	valido=true;// Si es VIP y la fecha es posterior (es decir, válida), devolvemos true
+	    }
+	    if(!fecha) {
+	    	this.listaDao.desactivarVip(email);
+	    }
+	    return valido;
 	}
-	public int cantidadCreadas (String email) {
+
+	public int cantidadListasTieneUser (String email) {
 		int cant=this.listaDao.contarListasDeUsuario(email);
 		return cant;
 	}
 	
-/**	public boolean vip(String email) {
-	    String url = "https://localhost:9000/users/verificar-vip?email=" + email; // URL del backend de usuarios
-
-	    try {
-	        // Crear la URL
-	        URL obj = new URL(url);
-	        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-	        // Establecer el método de la solicitud
-	        con.setRequestMethod("GET");
-
-	        // Obtener el código de respuesta
-	        int responseCode = con.getResponseCode();
-	        System.out.println("Response Code: " + responseCode);
-
-	        // Si la respuesta es OK (200), leer la respuesta
-	        if (responseCode == HttpURLConnection.HTTP_OK) { // 200
-	            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-	            String inputLine;
-	            StringBuilder response = new StringBuilder();
-
-	            while ((inputLine = in.readLine()) != null) {
-	                response.append(inputLine);
-	            }
-	            in.close();
-
-	            // Ahora procesamos la respuesta
-	            // Suponemos que la respuesta es un JSON o un valor simple booleano
-	            // Si es un valor JSON, necesitarías parsear el JSON
-	            // Ejemplo si la respuesta fuera "true" o "false":
-	            if ("true".equals(response.toString())) {
-	                return true;  // El usuario es VIP
-	            } else {
-	                return false; // El usuario no es VIP
-	            }
-	        } else {
-	            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al verificar el estado VIP");
-	        }
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al conectar con el servicio de usuarios");
+	public boolean permitirComp(String idLista) {
+		boolean permitir=false;
+		Optional<Lista> optLista = this.listaDao.findById(idLista);
+	    if (optLista.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
 	    }
+
+	    // Obtener la lista y actualizar el nombre
+	    Lista lista = optLista.get();
+	    int participantes=lista.getEmailsUsuarios().size();
+	    String email=lista.getCreador();
+	    boolean vip=vip(email);
+	    if(vip||participantes<=1) {
+	    	permitir=true;
+	    }
+	    return permitir;
+	}
+	
+	public Lista eliminarMiembro(String email, String idLista) {
+	    // Verificar si la lista existe
+	    Optional<Lista> optLista = this.listaDao.findById(idLista);
+	    if (optLista.isEmpty()) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
+	    }
+
+	    // Obtener la lista
+	    Lista lista = optLista.get();
+	    
+	    // Obtener los usuarios asociados a la lista
+	    List<String> usuarios = lista.getEmailsUsuarios();
+
+	    // Verificar si el usuario está en la lista
+	    if (!usuarios.contains(email)) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario no pertenece a esta lista");
+	    }
+
+	    // Eliminar el usuario de la lista
+	    usuarios.remove(email);
+
+	    // Actualizar la base de datos
+	    this.listaDao.eliminarUsuarioDeLista(idLista, email); // Método en ListaDao definido previamente
+	    wsListas.enviarMensajeAUsuariosDeLista(idLista, "Se ha eliminado de la lista a: " + email,lista);
+	    // Devolver la lista actualizada
+	    return lista;
 	}
 
-    public boolean vip(String email) {
-        String url = "http://localhost:9000/users/verificar-vip?email=" + email;  // Suponiendo que este es el endpoint para verificar VIP
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Realizamos la solicitud GET al backend de usuarios
-            HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("Content-Type", "application/json");  // Especificamos el tipo de contenido como JSON
-
-            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                // Si el código de estado es 200 OK, significa que el usuario es VIP
-                return response.getCode() == 200; 
-            }
-        } catch (Exception e) {
-            e.printStackTrace();  // Si ocurre un error, lo imprimimos
-            return false; // Si hay algún error, se considera que no es VIP
-        }
-    }**/
 }
 
 
