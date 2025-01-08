@@ -49,36 +49,26 @@ public class ProductoService {
 	}
 
 	public Lista deleteProducto(String idProducto, String idLista) {
-	    // Buscar el producto por su ID
 	    Optional<Producto> optProducto = this.productoDao.findById(idProducto);
 	    if (optProducto.isEmpty()) {
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra el producto");
 	    }
-
-	    // Buscar la lista por su ID
 	    Optional<Lista> optLista = this.listaDao.findById(idLista);
 	    if (optLista.isEmpty()) {
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
 	    }
-
 	    Lista lista = optLista.get();
 	    Producto producto = optProducto.get();
-
-	    // Usar un iterador explícito para evitar ConcurrentModificationException
+	    
 	    Iterator<Producto> iterator = lista.getProductos().iterator();
 	    while (iterator.hasNext()) {
 	        Producto p = iterator.next();
 	        if (p.getId().equalsIgnoreCase(producto.getId())) {
-	            iterator.remove(); // Eliminación segura
+	            iterator.remove(); 
 	        }
 	    }
-
-	    // Actualizar el estado del producto y eliminarlo de la base de datos
 	    producto.setLista(lista);
 	    this.productoDao.delete(producto);
-
-	    // Notificar cambios
-	    //this.wsListas.notificar(idLista, producto);
 	    wsListas.enviarMensajeAUsuariosDeLista(idLista, "Se ha eliminado un producto: " + producto.getNombre(),lista);
 	    return lista;
 	}
@@ -90,25 +80,15 @@ public class ProductoService {
 	    if (optProducto.isEmpty()) {
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra el producto");
 	    }
-	    
-	    // Obtenemos el producto existente
 	    Producto productoAGuardar = optProducto.get();
-	    
-	    // Asignar los valores de las unidades del producto
 	    productoAGuardar.setUnidadesPedidas(producto.getUnidadesPedidas());
 	    productoAGuardar.setUnidadesCompradas(producto.getUnidadesCompradas());
-	    
-	    // Obtener la lista correspondiente al producto (ya que el producto tiene un campo lista)
 	    Lista lista = productoAGuardar.getLista();
 	    if (lista == null) {
-	        // Si el producto no tiene lista asignada, lanzamos una excepción (o puedes manejarlo de otra manera)
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El producto no tiene lista asociada");
 	    }
-	    
-	    // Guardamos el producto actualizado
 	    this.productoDao.save(productoAGuardar);
 	    wsListas.enviarMensajeAUsuariosDeLista(lista.getId(), "Se ha editado el producto: " + productoAGuardar.getNombre(),lista);
-	    // Devuelve el producto modificado (aunque podría también devolver la lista si es necesario)
 	    return productoAGuardar;
 	}
 

@@ -41,7 +41,7 @@ public class ProxyBEU {
 	public boolean validar(String Token) {
 		boolean exist = this.listaDao.existeToken(Token);
 		if (exist) {
-            return true; // Sesión válida
+            return true; 
         }else {
         	return false;
         }

@@ -26,8 +26,7 @@ import edu.uclm.esi.listasbe.model.Lista;
 import edu.uclm.esi.listasbe.model.Producto;
 import edu.uclm.esi.listasbe.ws.WSListas;
 
-//los services se usan para obtener o modificar o eliminar informacion de la BBDD
-//Interacciona con la BBDD a traves de las clases DAO
+
 
 @Service
 public class ListaService {
@@ -81,22 +80,17 @@ public class ListaService {
 	}
 
 	public Lista cambiarNombre(String idLista, String nuevoNombre) {
-	 
 	    Optional<Lista> optLista = this.listaDao.findById(idLista);
 	    if (optLista.isEmpty()) {
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
 	    }
-
-	   
 	    Lista lista = optLista.get();
-	    lista.setNombre(nuevoNombre);
-
-	   
+	    lista.setNombre(nuevoNombre);	   
 	    this.listaDao.save(lista);
 	    wsListas.enviarMensajeAUsuariosDeLista(idLista, "El nombre de la lista ha cambiado a: " + nuevoNombre,lista);
-	    
 	    return lista;
 	}
+	
 	public boolean vip(String email) {
 	    boolean vip = this.listaDao.esUsuarioVip(email);  
 	    if(vip) {
@@ -125,9 +119,7 @@ public class ListaService {
 		Optional<Lista> optLista = this.listaDao.findById(idLista);
 	    if (optLista.isEmpty()) {
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
-	    }
-
-	   
+	    } 
 	    Lista lista = optLista.get();
 	    int participantes=lista.getEmailsUsuarios().size();
 	    String email=lista.getCreador();
@@ -145,50 +137,34 @@ public class ListaService {
 	    Optional<Lista> optLista = this.listaDao.findById(idLista);
 	    if (optLista.isEmpty()) {
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
-	    }
-
-	    
+	    } 
 	    Lista lista = optLista.get();
-	    
-	  
-	    List<String> usuarios = lista.getEmailsUsuarios();
-
-	   
+	    List<String> usuarios = lista.getEmailsUsuarios();	   
 	    if (!usuarios.contains(email)) {
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario no pertenece a esta lista");
 	    }
-
-	   
 	    usuarios.remove(email);
-
-	    
 	    this.listaDao.eliminarUsuarioDeLista(idLista, email); 
 	    wsListas.enviarMensajeAUsuariosDeLista(idLista, "Se ha eliminado de la lista a: " + email,lista);
-	   
 	    return lista;
 	}
 	
 	public void eliminarLista(String idLista, String email) {
-	    System.out.println("Intentando eliminar lista con ID: " + idLista + " y email: " + email);
-	    
+	    System.out.println("Intentando eliminar lista con ID: " + idLista + " y email: " + email); 
 	    Optional<Lista> optLista = this.listaDao.findById(idLista);
 	    if (optLista.isEmpty()) {
 	        System.out.println("Lista no encontrada");
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La lista no existe");
 	    }
-
 	    Lista lista = optLista.get();
 	    System.out.println("Lista encontrada: " + lista);
-	    
 	    if (lista.getCreador() == null || !lista.getCreador().equals(email)) {
 	        throw new IllegalArgumentException("El creador de la lista no está definido o no coincide.");
 	    }
-
 	    if (!lista.getCreador().equals(email)) {
 	        System.out.println("El usuario no tiene permisos para eliminar esta lista");
 	        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para eliminar esta lista");
 	    }
-
 	    System.out.println("Eliminando lista...");
 	    this.listaDao.delete(lista);
 	    System.out.println("Lista eliminada exitosamente");

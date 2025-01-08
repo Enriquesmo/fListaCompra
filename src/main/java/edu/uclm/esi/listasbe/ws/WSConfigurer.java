@@ -12,12 +12,12 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 public class WSConfigurer implements WebSocketConfigurer {
 
     @Autowired
-    private WSListas wsListas; // Inyectar el bean gestionado por Spring
+    private WSListas wsListas; 
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry
-            .addHandler(wsListas, "/wsListas") // Usar la instancia inyectada
+            .addHandler(wsListas, "/wsListas") 
             .setAllowedOrigins("https://localhost:4200");
     }
 }

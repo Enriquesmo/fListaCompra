@@ -68,7 +68,6 @@ public class ListaController {
 	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 
-	
 	@GetMapping("/getListas")
 	public ResponseEntity<?> getListas(HttpServletRequest request,@RequestParam String email){
 		String fakeUserId = token.findCookie(request, "fakeUserId");
@@ -87,8 +86,6 @@ public class ListaController {
 		    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 	
-	
-
 	@PostMapping("/accept-invitacion")
 	public ResponseEntity<?> acceptInvitation(HttpServletRequest request,@RequestParam String idLista, @RequestParam String email) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
@@ -106,8 +103,7 @@ public class ListaController {
 				            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("status", "error", "message", "Necesitas ser premium para añadir más listas."));
 				        }
 				    }
-				    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-				        .body(Map.of("status", "error", "message", "El usuario creador de la sala no puede añadir más personas."));
+				    return ResponseEntity.status(HttpStatus.FORBIDDEN) .body(Map.of("status", "error", "message", "El usuario creador de la sala no puede añadir más personas."));
 			 }
 		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
@@ -127,7 +123,6 @@ public class ListaController {
 				 }catch (ResponseStatusException e) {
 		                return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason())); 
 		            }
-				
 			 }
 		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
@@ -144,8 +139,7 @@ public class ListaController {
 					 Lista lista=this.listaService.eliminarMiembro(email,idLista);
 					 return ResponseEntity.ok(lista);
 				 }catch (ResponseStatusException e) {
-		                return ResponseEntity.status(e.getStatusCode())
-		                        .body(Map.of("message", e.getReason())); // Devuelve un mensaje en un mapa
+		                return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason())); 
 		            }
 			 }
 			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));

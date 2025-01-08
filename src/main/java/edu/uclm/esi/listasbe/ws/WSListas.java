@@ -25,21 +25,19 @@ import edu.uclm.esi.listasbe.model.Producto;
 
 @Component
 public class WSListas extends TextWebSocketHandler {
+	
 	@Autowired
 	private ListaDao listaDao;
+	
     private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
-    
-
-	
 	private Map<String, List<WebSocketSession>> sessionsByIdLista = new ConcurrentHashMap<>();
 	
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         System.out.println(session.getId());
         String email = this.getParameter(session, "email");
-        List<String> listas = this.listaDao.getListasDe(email); // Método para obtener listas asociadas al usuario.
-        
+        List<String> listas = this.listaDao.getListasDe(email); 
         for (String idLista : listas) {
         	System.out.println(idLista);
         	System.out.println(this.sessionsByIdLista.get(idLista));
@@ -65,6 +63,7 @@ public class WSListas extends TextWebSocketHandler {
 		}
 		return null;
 	}
+	
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         System.out.println("Error en la conexión WebSocket: " + exception.getMessage());
@@ -73,7 +72,6 @@ public class WSListas extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        // Eliminar la sesión de sessionsByIdLista
         for (Map.Entry<String, List<WebSocketSession>> entry : sessionsByIdLista.entrySet()) {
             List<WebSocketSession> sessionList = entry.getValue();
             sessionList.remove(session);
@@ -81,25 +79,18 @@ public class WSListas extends TextWebSocketHandler {
                 sessionsByIdLista.remove(entry.getKey());
             }
         }
-        // Eliminar la sesión de la lista global
         this.sessions.remove(session.getId());
         System.out.println("Conexión cerrada para sessionId: " + session.getId());
     }
 
 
-
-
-    // Método para enviar mensajes a todos los miembros de una lista
     public void enviarMensajeAUsuariosDeLista(String listaId, String mensaje, Lista lista) {
         System.out.println("Enviando mensaje a los usuarios de la lista: " + listaId);
         System.out.println("Sesiones registradas: " + sessionsByIdLista.size());
-
-        // Crear el mensaje JSON
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("mensaje", mensaje);
         jsonObject.put("listaId", listaId);
 
-        // Crear un objeto JSON para representar la lista completa
         JSONObject listaJson = new JSONObject();
         listaJson.put("id", lista.getId());
         listaJson.put("nombre", lista.getNombre());
@@ -107,7 +98,6 @@ public class WSListas extends TextWebSocketHandler {
         listaJson.put("invitation_token", lista.getInvitation_token());
         listaJson.put("emailsUsuarios", lista.getEmailsUsuarios());
 
-        // Convertir los productos a un JSONArray
         JSONArray productosJson = new JSONArray();
         for (Producto producto : lista.getProductos()) {
             JSONObject productoJson = new JSONObject();
@@ -117,19 +107,12 @@ public class WSListas extends TextWebSocketHandler {
             productoJson.put("unidadesCompradas", producto.getUnidadesCompradas());
             productosJson.put(productoJson);
         }
+        
         listaJson.put("productos", productosJson);
-
-        // Añadir la lista al mensaje principal
         jsonObject.put("lista", listaJson);
-
-        // Convertir el mensaje completo a JSON String
         String mensajeJson = jsonObject.toString();
-
-        // Obtener las sesiones asociadas a la lista
         List<WebSocketSession> listaSesiones = sessionsByIdLista.get(listaId);
-
         if (listaSesiones != null) {
-            // Enviar el mensaje a todas las sesiones asociadas a la lista
             for (WebSocketSession session : listaSesiones) {
                 try {
                     session.sendMessage(new TextMessage(mensajeJson));
