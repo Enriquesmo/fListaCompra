@@ -23,7 +23,8 @@ public class ProductoService {
 	private ProductoDao productoDao;
 	@Autowired
 	private WSListas wsListas;
-	
+	@Autowired
+	private ListaService listaService;
 	
 	public Lista addProducto(String idLista, Producto producto,String email) {
 		Optional<Lista> optlista = this.listaDao.findById(idLista);
@@ -31,7 +32,7 @@ public class ProductoService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentra la lista");
 		Lista lista = optlista.get();
 		int cant=lista.getProductos().size();
-		boolean vip=this.listaDao.esUsuarioVip(email);
+		boolean vip=this.listaService.vip(email);
 		if(vip||cant<10) {
 			Producto productoGuardar = new Producto();
 			productoGuardar.setNombre(producto.getNombre());
@@ -44,7 +45,7 @@ public class ProductoService {
 			wsListas.enviarMensajeAUsuariosDeLista(idLista, "Se ha añadido un nuevo producto: " + productoGuardar.getNombre(),lista);
 			return lista;
 		}
-		return null;
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Necesita ser vip para añadir más de 10 productos, borre alguno.");
 	}
 
 	public Lista deleteProducto(String idProducto, String idLista) {
@@ -112,20 +113,6 @@ public class ProductoService {
 	}
 
 	
-	public List<Producto> getProductosDeLista(String idLista) {
-	    // Buscar la lista por su ID
-	    Optional<Lista> optLista = this.listaDao.findById(idLista);
-	    
-	    // Si la lista no existe, lanzar un error
-	    if (optLista.isEmpty()) {
-	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la lista");
-	    }
-	    
-	    // Obtener la lista
-	    Lista lista = optLista.get();
-	    
-	    // Devolver los productos asociados a esa lista
-	    return lista.getProductos();
-	}
+
 
 }

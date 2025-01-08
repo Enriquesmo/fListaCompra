@@ -1,10 +1,12 @@
 package edu.uclm.esi.listasbe.http;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,55 +37,48 @@ public class ProductoController {
 	
 
 	@PutMapping("/producto")
-	public Producto modificarProducto(HttpServletRequest request,@RequestBody Producto producto) {
-		
+	public ResponseEntity<?> modificarProducto(HttpServletRequest request,@RequestBody Producto producto) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
 		 if (fakeUserId != null) {
 			 boolean validado=token.validar(fakeUserId);
 			 if (validado) {
-				 return this.productoService.modifyProducto(producto); 
+				 try {
+					 Producto productoDevolver=this.productoService.modifyProducto(producto);
+					 return  ResponseEntity.ok( productoDevolver); 
+				 }catch (ResponseStatusException e) {
+		                return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason())); 
+		            }
 			 }
-			 return null;
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
-	    return null;
+		  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 
-	
-	@GetMapping("/producto")
-    public List<Producto> getProducto(HttpServletRequest request,@RequestParam String idLista) {
-        // Llamar al servicio para obtener los productos de la lista por su id
-		String fakeUserId = token.findCookie(request, "fakeUserId");
-		 if (fakeUserId != null) {
-			 boolean validado=token.validar(fakeUserId);
-			 if (validado) {
-				 return productoService.getProductosDeLista(idLista);
-			 }
-			 return null;
-		 }
-	    return null;
-    }
-
-	
 	@DeleteMapping("/producto")
-	public Lista delete(HttpServletRequest request, @RequestParam String idLista,@RequestParam String idProducto) {
+	public ResponseEntity<?> delete(HttpServletRequest request, @RequestParam String idLista,@RequestParam String idProducto) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
 		 if (fakeUserId != null) {
 			 boolean validado=token.validar(fakeUserId);
 			 if (validado) {
-				 return this.productoService.deleteProducto(idProducto,idLista);
+				 try {
+					 Lista lista= this.productoService.deleteProducto(idProducto,idLista);
+					 return ResponseEntity.ok( lista);
+				 }catch (ResponseStatusException e) {
+		                return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
+		            }
 			 }
-			 return null;
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
-	    return null;
+		  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 	
 	@PostMapping("/producto")
-	public Lista addProducto(HttpServletRequest request,@RequestBody Producto producto) {
-		
+	public ResponseEntity<?> addProducto(HttpServletRequest request,@RequestBody Producto producto) {
 		String fakeUserId = token.findCookie(request, "fakeUserId");
 		 if (fakeUserId != null) {
 			 boolean validado=token.validar(fakeUserId);
 			 if (validado) {
+			try {
 				 if (producto.getNombre().isEmpty())
 						throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El nombre no puede estar vacio");
 					
@@ -92,13 +87,15 @@ public class ProductoController {
 					
 					String idLista = request.getHeader("idLista");
 					String email = request.getHeader("email");
-					return this.productoService.addProducto(idLista,producto,email);
+					Lista lista= this.productoService.addProducto(idLista,producto,email);
+					return ResponseEntity.ok( lista);
+			}catch (ResponseStatusException e) {
+                return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason())); 
+            }
 			 }
-			 return null;
+			 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Error al verificar su sesión."));
 		 }
-		return null;
-		
-		
+		  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuario no autenticado."));
 	}
 	
 	
