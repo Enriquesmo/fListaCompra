@@ -54,6 +54,9 @@ public class ListaService {
 	public List<Lista> getListas(String email) {
 		List<Lista> result = new ArrayList<>();
 		List<String> ids = this.listaDao.getListasDe(email);
+		  if (ids.isEmpty()) {
+		        return result;
+		    }
 		if(ids.size()==0) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No se encuentran listas");
 		}
@@ -164,6 +167,14 @@ public class ListaService {
 	    if (!lista.getCreador().equals(email)) {
 	        System.out.println("El usuario no tiene permisos para eliminar esta lista");
 	        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para eliminar esta lista");
+	    }
+	    System.out.println("Eliminando productos asociados...");
+	    this.productoDao.deleteByListaId(idLista); // Elimina solo los productos de esta lista
+
+
+	    System.out.println("Eliminando usuarios asociados...");
+	    for (String usuario : lista.getEmailsUsuarios()) {
+	        this.listaDao.eliminarUsuarioDeLista(idLista, usuario);
 	    }
 	    System.out.println("Eliminando lista...");
 	    this.listaDao.delete(lista);
